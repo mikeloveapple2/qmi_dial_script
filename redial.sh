@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#modify by https://github.com/penguin2716/qmi_setup
+# modify by https://github.com/penguin2716/qmi_setup
 
 ###
 # This script automate the setup of QMI supported wwan devices.
@@ -38,6 +38,7 @@ DHCPCD=/sbin/dhcpcd
 SUDO=/usr/bin/sudo
 RESET_CMD="resetusb"
 CHECK_INTERVAL=5
+TEST_URL="www.google.com"
 
 function helpmsg {
     echo "usage: $0 {start|stop|restart|status}"
@@ -120,7 +121,6 @@ fi
 #esac
 
 echo "test redial"
-TEST_URL="www.o2oc.cn"
 while true; do
     if [ -e ${CDC_WDM} ];then
         echo "exist cdc-wdm"
