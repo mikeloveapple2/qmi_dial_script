@@ -123,8 +123,7 @@ fi
 #esac
 
 echo "test redial"
-TEST_URL="114.114.114.114"
-#TEST_URL="www.o2oc.cn"
+TEST_URL="zzzz.cn"
 RETRY_NUM=3
 FAIL_TIME=1
 
