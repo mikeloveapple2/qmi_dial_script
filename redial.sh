@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# modify by https://github.com/penguin2716/qmi_setup
+# TODO add failed time to reconnect
 
 ###
 # This script automate the setup of QMI supported wwan devices.
@@ -32,13 +32,15 @@ CDC_WDM=/dev/cdc-wdm0
 # this script uses following qmi commands
 QMICLI=/usr/bin/qmicli
 QMI_NETWORK=/usr/bin/qmi-network
+#QMICLI="/usr/local/bin/qmicli"
+#QMI_NETWORK="/usr/local/bin/qmi-network"
 # the places of following commands vary depending on your distribution
 IFCONFIG=/sbin/ifconfig
 DHCPCD=/sbin/dhcpcd
 SUDO=/usr/bin/sudo
 RESET_CMD="resetusb"
 CHECK_INTERVAL=5
-TEST_URL="www.google.com"
+DEBUG_FLAG=0
 
 function helpmsg {
     echo "usage: $0 {start|stop|restart|status}"
@@ -121,19 +123,35 @@ fi
 #esac
 
 echo "test redial"
+TEST_URL="114.114.114.114"
+#TEST_URL="www.o2oc.cn"
+RETRY_NUM=3
+FAIL_TIME=1
+
 while true; do
     if [ -e ${CDC_WDM} ];then
-        echo "exist cdc-wdm"
         parameter="-I ${WWAN_DEV} ${TEST_URL} -c 3"
-        echo "run cmd :: ping " ${parameter}
+        
         ping ${parameter} > /dev/null 2>&1
         result=$?
-        echo "result :: ${result}"
+
+        if [ $DEBUG_FLAG -lt 0 ];then
+            echo "result :: ${result}"
+            echo "run cmd :: ping " ${parameter}
+        fi
+
         if [ ${result} == 0 ];then
-            echo "\x1b[42m--connected--\x1b[0m"
+            echo "--------connected-------"
         elif [ ${result} != 0 ];then
-            qmi_stop;qmi_start
-            echo "\x1b[41m--discconnected--\x1b[0m"
+            echo "--------discconnected-------"
+            if [ $FAIL_TIME -lt $RETRY_NUM ];then
+                FAIL_TIME=$((FAIL_TIME + 1))
+                echo "fail count : " $FAIL_TIME 
+            else
+                FAIL_TIME=1
+                echo "redial at once"
+                qmi_stop;qmi_start
+            fi
         fi
     else
         echo "Not exist"
